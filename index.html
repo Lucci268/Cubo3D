@@ -16,4 +16,28 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       color: #fff; 
     }
+    /* Garante que o elemento do 3D preencha a tela sem deixar espacos em branco */
+    canvas { display: block; }
+
+    /* Container invisivel que ocupa toda a tela para alinhar os elementos da interface */
+    #ui-container {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; /* Permite que o clique atravesse o container e chegue no canvas 3D */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    /* Estilo base para todos os paineis da interface, criando um efeito de vidro escuro */
+    .panel {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px 25px;
+      pointer-events: all; /* Reativa os cliques apenas dentro das caixas dos paineis */
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
     
