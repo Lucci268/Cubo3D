@@ -182,7 +182,25 @@
     const rimLight = new THREE.PointLight(0xffffff, 0.6);
     rimLight.position.set(0, -5, 0);
     scene.add(rimLight);
-    
+
+    // DEFINICAO DE CONSTANTES PARA A MODELAGEM DO CUBO
+    const CUBIE_SIZE = 0.95; // Tamanho do corpo preto do cubinho (pouco menor que 1 para deixar espaco entre eles)
+    const STICKER_SIZE = 0.82; // Tamanho do adesivo colorido
+    const STICKER_THICKNESS = 0.02; // Espessura do adesivo
+    const GAP = 0.05; // Margem visual (nao utilizada diretamente na matematica aqui, representada pelo CUBIE_SIZE)
+    const STEP = 1.0; // Distancia entre o centro de um cubinho e o proximo
+
+    // Mapeamento de cores hexadecimais para as faces
+    const COLORS = {
+      U: 0xffffff, // Branco (Up)
+      D: 0xffd700, // Amarelo (Down)
+      F: 0xc41e3a, // Vermelho (Front)
+      B: 0xff5800, // Laranja (Back)
+      L: 0x009e60, // Verde (Left)
+      R: 0x0051ba, // Azul (Right)
+      CORE: 0x111111 // Preto para o nucleo do material base
+    };
+
       </script>
 </body>
 </html>
