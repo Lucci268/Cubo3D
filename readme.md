@@ -1,8 +1,8 @@
 # 🧊 Cubo Mágico 3D - Simulador Interativo
 # =Alunos= 
-* **Luciano Henrique Pereira Cordeiro - 00000853712
-* **Paulo Barbosa Apolinário Neto - 00000853095
-* **Rafael Cavalcanti Montenegro - 00000863823
+* **Luciano Henrique Pereira Cordeiro - 00000853712**
+* **Paulo Barbosa Apolinário Neto - 00000853095**
+* **Rafael Cavalcanti Montenegro - 00000863823**
 
 
 Um simulador de Cubo Mágico (Rubik's Cube) tridimensional altamente interativo, renderizado direto no navegador. Este projeto foi desenvolvido como uma aplicação prática de **Computação Gráfica**, focando na aplicação de renderização 3D, transformações geométricas (matrizes de rotação e pivôs locais/globais), iluminação de estúdio realista e mapeamento de câmera orbital.
