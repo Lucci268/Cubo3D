@@ -91,3 +91,59 @@
       display: none; /* Oculto por padrao */
       text-shadow: 0 0 20px rgba(255,221,85,0.5);
     }
+    /* Legenda de instrucoes no canto inferior esquerdo */
+    .legend {
+      position: absolute;
+      bottom: 20px; left: 20px;
+      font-size: 11px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .legend span { color: #999; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div id="ui-container">
+    <div id="header" class="panel">
+      <h1>Cubo Magico 3D</h1>
+      <p>Simulador Interativo Premium</p>
+    </div>
+
+    <div id="stats-panel" class="panel">
+      <div class="stat-label">Movimentos</div>
+      <div id="moveCount" class="stat-value">000</div>
+    </div>
+
+    <div id="scramble-overlay">Embaralhando...</div>
+
+    <div id="controls-panel" class="panel">
+      <div class="btn-group">
+        <button class="btn" id="btnU" onclick="selectFace('U')">U (Cima)</button>
+        <button class="btn" id="btnD" onclick="selectFace('D')">D (Baixo)</button>
+        <button class="btn" id="btnL" onclick="selectFace('L')">L (Esq.)</button>
+        <button class="btn" id="btnR" onclick="selectFace('R')">R (Dir.)</button>
+        <button class="btn" id="btnF" onclick="selectFace('F')">F (Frente)</button>
+        <button class="btn" id="btnB" onclick="selectFace('B')">B (Tras)</button>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-action" onclick="rotateFace(1)">Horario (Enter)</button>
+        <button class="btn btn-action" onclick="rotateFace(-1)">Anti-horario (Bksp)</button>
+        <button class="btn btn-action" onclick="scramble()">Embaralhar (S)</button>
+        <button class="btn btn-danger" onclick="resetCube()">Resetar</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span>MOUSE:</span> Arrastar para orbitar | Scroll para zoom<br>
+      <span>TECLAS:</span> U, D, L, R, F, B para selecionar faces
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <script>
+    // As partes 2 e 3 do codigo serao inseridas aqui
+  </script>
+</body>
+</html>
