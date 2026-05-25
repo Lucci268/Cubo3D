@@ -150,6 +150,39 @@
     // Configura a camera em perspectiva (Angulo de visao, Proporcao de tela, Distancia minima, Distancia maxima)
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(6, 5, 8); // Posicao inicial da camera no espaco 3D
+
+
+    //  Inicializa o motor de renderizacao WebGL
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // antialias suaviza bordas
+    renderer.setSize(window.innerWidth, window.innerHeight); // Define o tamanho do canvas para cobrir a tela
+    renderer.setPixelRatio(window.devicePixelRatio); // Mantem a nitidez em monitores de alta resolucao
+    renderer.shadowMap.enabled = true; // Habilita o calculo de sombras
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Utiliza um algoritmo de sombra mais suave
+    document.body.appendChild(renderer.domElement); // Adiciona o elemento <canvas> gerado ao corpo da pagina
+
+    // CONFIGURACAO DE ILUMINACAO DE ESTUDIO
+    // Luz ambiente preenche todo o espaco de forma homogenea, evitando sombras totalmente pretas
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    // Luz direcional principal, que simula um sol e projeta as sombras
+    const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    mainLight.position.set(5, 10, 7);
+    mainLight.castShadow = true; // Permite que esta luz crie sombras
+    mainLight.shadow.mapSize.width = 2048; // Qualidade da sombra gerada (Resolucao)
+    mainLight.shadow.mapSize.height = 2048;
+    scene.add(mainLight);
+
+    // Luz de preenchimento para iluminar levemente os lados opostos a luz principal
+    const fillLight = new THREE.DirectionalLight(0x8899ff, 0.4);
+    fillLight.position.set(-5, 2, -5);
+    scene.add(fillLight);
+
+    // Luz de contorno vinda de baixo para destacar os limites do cubo contra o fundo
+    const rimLight = new THREE.PointLight(0xffffff, 0.6);
+    rimLight.position.set(0, -5, 0);
+    scene.add(rimLight);
+    
       </script>
 </body>
 </html>
