@@ -40,4 +40,54 @@
       pointer-events: all; /* Reativa os cliques apenas dentro das caixas dos paineis */
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     }
+    /* Formatacao especifica do cabecalho */
+    #header { align-self: center; text-align: center; }
+    #header h1 { font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: #ffdd55; margin-bottom: 5px; }
+    #header p { font-size: 12px; color: #aaa; }
+
+    /* Container dos botoes de controle */
+    #controls-panel { align-self: center; display: flex; flex-direction: column; gap: 15px; width: fit-content; }
+    .btn-group { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     
+    /* Estilizacao geral dos botoes interativos */
+    .btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #eee;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s; /* Adiciona suavidade nas mudancas de estado do botao */
+      user-select: none;
+      min-width: 60px;
+    }
+    
+    /* Efeitos de interacao do mouse sobre os botoes */
+    .btn:hover { background: rgba(255,255,255,0.15); border-color: #ffdd55; color: #ffdd55; transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+    .btn.active { background: #ffdd55; color: #000; border-color: #ffdd55; }
+
+    /* Variacoes de cores para botoes especificos */
+    .btn-action { border-color: rgba(255,221,85,0.4); color: #ffdd55; }
+    .btn-danger { border-color: rgba(255,85,85,0.4); color: #ff5555; }
+
+    /* Painel lateral para exibicao da contagem de movimentos */
+    #stats-panel { position: absolute; top: 20px; right: 20px; text-align: right; }
+    .stat-label { font-size: 11px; color: #888; text-transform: uppercase; }
+    .stat-value { font-size: 20px; font-weight: bold; color: #ffdd55; font-family: monospace; }
+
+    /* Texto centralizado que aparece durante o processo de embaralhamento */
+    #scramble-overlay {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffdd55;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      display: none; /* Oculto por padrao */
+      text-shadow: 0 0 20px rgba(255,221,85,0.5);
+    }
