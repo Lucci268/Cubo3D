@@ -288,6 +288,203 @@
 
     // Dispara a geracao do modelo assim que o codigo chega aqui
     initCube();
+    // INICIO DA LOGICA DE ANIMACAO E INTERACAO
+
+    // Dicionario que define como cada face deve girar. 
+    // Eixo de rotacao (Vector3) e a regra para identificar quais cubos pertencem aquela face.
+    const FACE_AXIS = {
+      U: { axis: new THREE.Vector3(0, 1, 0), coord: 'iy', val: 1 },
+      D: { axis: new THREE.Vector3(0, -1, 0), coord: 'iy', val: -1 },
+      F: { axis: new THREE.Vector3(0, 0, 1), coord: 'iz', val: 1 },
+      B: { axis: new THREE.Vector3(0, 0, -1), coord: 'iz', val: -1 },
+      R: { axis: new THREE.Vector3(1, 0, 0), coord: 'ix', val: 1 },
+      L: { axis: new THREE.Vector3(-1, 0, 0), coord: 'ix', val: -1 }
+    };
+
+    // Variaveis de controle de estado
+    let selectedFace = null;
+    let isAnimating = false;
+    let moveCount = 0;
+
+    // Funcao ativada pelos botoes ou teclado para preparar qual face sera girada
+    function selectFace(face) {
+      if (isAnimating) return; // Bloqueia a selecao se uma animacao ja estiver rodando
+      selectedFace = face;
+      // Atualiza a interface, ativando visualmente apenas o botao da face escolhida
+      ['U','D','L','R','F','B'].forEach(f => {
+        document.getElementById('btn' + f).classList.toggle('active', f === face);
+      });
+    }
+
+    // Aciona o inicio do giro com base na direcao solicitada (1 horario, -1 anti-horario)
+    function rotateFace(dir) {
+      if (isAnimating || !selectedFace) return;
+      animateRotation(selectedFace, dir);
+    }
+
+    // Funcao principal que gerencia o calculo geometrico da animacao de giro
+    function animateRotation(face, dir, speed = 0.3) {
+      isAnimating = true;
+      const config = FACE_AXIS[face];
+      
+      // 1. Filtra na matriz de cubos quais deles pertencem a face que deve girar
+      const activeCubies = cubies.filter(c => Math.round(c[config.coord]) === config.val);
+      
+      // 2. Cria um grupo temporario no centro da tela para atuar como pivo da rotacao
+      const pivot = new THREE.Group();
+      scene.add(pivot);
+      
+      // Move os blocos filtrados do cubo principal para este pivo temporario
+      activeCubies.forEach(c => {
+        cubeGroup.remove(c.mesh);
+        pivot.add(c.mesh);
+      });
+
+      // 3. Calculos matematicos da animacao
+      const targetAngle = (Math.PI / 2) * dir; // Calcula 90 graus radianos multiplicados pela direcao
+      const startTime = performance.now(); // Marca o tempo de inicio da animacao
+
+      // Funcao rodando a cada frame para calcular o progresso
+      function update() {
+        const now = performance.now();
+        const elapsed = (now - startTime) / 1000; // Converte milissegundos decorridos para segundos
+        const t = Math.min(elapsed / speed, 1); // Normaliza o progresso entre 0 e 1
+        
+        // Aplica uma equacao de Easing (Smoothstep) para a animacao comecar e terminar de forma suave
+        const easedT = t * t * (3 - 2 * t);
+        const angle = targetAngle * easedT;
+        
+        // Rotaciona o grupo pivo na quantidade calculada
+        pivot.setRotationFromAxisAngle(config.axis, angle);
+
+        // Se a animacao nao acabou, pede para rodar o update no proximo frame
+        if (t < 1) {
+          requestAnimationFrame(update);
+        } else {
+          // Quando atinge o final do giro (t = 1)
+          pivot.updateMatrixWorld(true); // Atualiza e sela as matrizes matematicas globais
+          
+          activeCubies.forEach(c => {
+            // Repassa a matriz de transformacao espacial final do pivo para cada cubo individual
+            c.mesh.applyMatrix4(pivot.matrixWorld);
+            pivot.remove(c.mesh);
+            cubeGroup.add(c.mesh); // Retorna a peca ao grupo principal
+            
+            // Recalcula e salva em qual quadrante logico (x, y, z) a peca parou apos o giro
+            const pos = new THREE.Vector3();
+            c.mesh.getWorldPosition(pos);
+            c.ix = Math.round(pos.x / STEP);
+            c.iy = Math.round(pos.y / STEP);
+            c.iz = Math.round(pos.z / STEP);
+          });
+          
+          scene.remove(pivot); // Destroi o pivo temporario
+          isAnimating = false; // Libera o sistema para receber novos comandos
+          
+          // Incrementa e atualiza os contadores na tela se for uma jogada humana (speed lento)
+          if (speed > 0.1) {
+            moveCount++;
+            document.getElementById('moveCount').textContent = moveCount.toString().padStart(3, '0');
+          }
+        }
+      }
+      
+      update(); // Da o disparo inicial no loop do frame
+    }
+
+    // Funcao assincrona para realizar giros rapidos aleatorios simulando embaralhamento
+    async function scramble() {
+      if (isAnimating) return;
+      document.getElementById('scramble-overlay').style.display = 'block'; // Exibe o texto de embaralhando
+      const faces = ['U','D','L','R','F','B'];
+      
+      // Roda um loop 20 vezes girando uma face aleatoria bem rapidamente
+      for (let i = 0; i < 20; i++) {
+        const face = faces[Math.floor(Math.random() * 6)];
+        const dir = Math.random() > 0.5 ? 1 : -1;
+        animateRotation(face, dir, 0.1); // Chama a animacao com velocidade em 0.1s
+        await new Promise(r => setTimeout(r, 120)); // Forca o loop a aguardar 120ms entre cada giro
+      }
+      
+      document.getElementById('scramble-overlay').style.display = 'none'; // Esconde texto e zera contadores
+      moveCount = 0;
+      document.getElementById('moveCount').textContent = '000';
+    }
+
+    // Reposiciona todos os dados para a estrutura inicial
+    function resetCube() {
+      if (isAnimating) return;
+      initCube();
+      moveCount = 0;
+      document.getElementById('moveCount').textContent = '000';
+      selectedFace = null;
+      ['U','D','L','R','F','B'].forEach(f => document.getElementById('btn' + f).classList.remove('active'));
+    }
+
+    // CONTROLES DE CAMERA ORBITAL USANDO COORDENADAS ESFERICAS
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+    let theta = Math.PI / 4; // Angulo de giro horizontal
+    let phi = Math.PI / 4; // Angulo de giro vertical
+    let radius = 10; // Distancia da camera para o centro do cubo
+
+    // Atualiza matematicamente a posicao 3D da lente da camera baseada nos angulos
+    function updateCamera() {
+      camera.position.x = radius * Math.sin(phi) * Math.sin(theta);
+      camera.position.y = radius * Math.cos(phi);
+      camera.position.z = radius * Math.sin(phi) * Math.cos(theta);
+      camera.lookAt(0, 0, 0); // Forca a lente a sempre encarar o centro absoluto da cena
+    }
+
+    // Trata eventos do mouse para iniciar o arrasto da camera
+    window.addEventListener('mousedown', e => { isDragging = true; });
+    window.addEventListener('mouseup', e => { isDragging = false; });
+    
+    // Calcula o deslocamento do mouse e altera os angulos de rotacao global
+    window.addEventListener('mousemove', e => {
+      if (isDragging) {
+        const deltaX = e.clientX - previousMousePosition.x;
+        const deltaY = e.clientY - previousMousePosition.y;
+        theta -= deltaX * 0.01;
+        // Restringe o angulo vertical para nao virar de cabeca para baixo
+        phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi - deltaY * 0.01));
+        updateCamera();
+      }
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    // Detecta o movimento da roda do mouse para aproximar ou afastar o raio da camera
+    window.addEventListener('wheel', e => {
+      radius = Math.max(5, Math.min(20, radius + e.deltaY * 0.01));
+      updateCamera();
+    });
+
+    // SISTEMA DE CAPTURA DE TECLAS DO TECLADO
+    window.addEventListener('keydown', e => {
+      const key = e.key.toUpperCase(); // Padroniza tudo para letras maiusculas
+      if (['U','D','L','R','F','B'].includes(key)) selectFace(key); // Aciona selecao de faces
+      if (e.key === 'Enter') rotateFace(1); // Aciona o giro
+      if (e.key === 'Backspace') rotateFace(-1);
+      if (key === 'S') scramble(); // Aciona modo de embaralhamento
+    });
+
+    // LOOP DE RENDERIZACAO PRINCIPAL
+    // Esta funcao e o coracao do codigo grafico, executando infinitamente no ritmo da taxa de atualizacao do monitor
+    function animate() {
+      requestAnimationFrame(animate); // Solicita ao navegador a proxima chamada desta funcao
+      renderer.render(scene, camera); // Desenha os calculos graficos visuais no canvas
+    }
+    
+    // Atualiza a proporcao da camera caso o usuario altere o tamanho ou rotacione a tela do dispositivo
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Execucoes iniciais unicas
+    updateCamera(); // Posiciona a camera na inicializacao
+    animate(); // Da a partida no loop grafico contínuo
 
       </script>
 </body>
