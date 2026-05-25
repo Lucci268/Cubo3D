@@ -201,6 +201,94 @@
       CORE: 0x111111 // Preto para o nucleo do material base
     };
 
+    // ESTRUTURA DO CUBO
+    const cubeGroup = new THREE.Group(); // Grupo que vai conter todas as pecas
+    scene.add(cubeGroup);
+
+    let cubies = []; // Array que armazenara as referencias logicas e os modelos 3D de cada peca
+
+    // Funcao responsavel por criar um unico cubinho e seus adesivos nas posicoes x, y, z
+    function createCubie(ix, iy, iz) {
+      const cubieGroup = new THREE.Group(); // Sub-grupo para a peca individual
+      cubieGroup.position.set(ix * STEP, iy * STEP, iz * STEP); // Posiciona baseado nos eixos (ex: -1, 0, 1)
+
+      // Criacao do nucleo preto do cubinho
+      const bodyGeo = new THREE.BoxGeometry(CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE);
+      const bodyMat = new THREE.MeshPhongMaterial({ color: COLORS.CORE, shininess: 100 });
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      body.castShadow = true;
+      body.receiveShadow = true;
+      cubieGroup.add(body);
+
+      // Criacao da geometria base para os adesivos
+      const stickerGeo = new THREE.BoxGeometry(STICKER_SIZE, STICKER_SIZE, STICKER_THICKNESS);
+      
+      // Adiciona adesivo Superior se o cubinho estiver na camada mais alta de Y
+      if (iy === 1) {
+        const s = new THREE.Mesh(stickerGeo, new THREE.MeshPhongMaterial({ color: COLORS.U, shininess: 150 }));
+        s.position.y = CUBIE_SIZE / 2; // Posiciona na extremidade superior da peca preta
+        s.rotation.x = Math.PI / 2; // Gira 90 graus para ficar na horizontal
+        cubieGroup.add(s);
+      }
+      // Adiciona adesivo Inferior se estiver na base de Y
+      if (iy === -1) {
+        const s = new THREE.Mesh(stickerGeo, new THREE.MeshPhongMaterial({ color: COLORS.D, shininess: 150 }));
+        s.position.y = -CUBIE_SIZE / 2;
+        s.rotation.x = -Math.PI / 2;
+        cubieGroup.add(s);
+      }
+      // Adiciona adesivo Frontal se estiver na camada mais a frente de Z
+      if (iz === 1) {
+        const s = new THREE.Mesh(stickerGeo, new THREE.MeshPhongMaterial({ color: COLORS.F, shininess: 150 }));
+        s.position.z = CUBIE_SIZE / 2;
+        cubieGroup.add(s);
+      }
+      // Adiciona adesivo Traseiro se estiver no fundo de Z
+      if (iz === -1) {
+        const s = new THREE.Mesh(stickerGeo, new THREE.MeshPhongMaterial({ color: COLORS.B, shininess: 150 }));
+        s.position.z = -CUBIE_SIZE / 2;
+        s.rotation.y = Math.PI;
+        cubieGroup.add(s);
+      }
+      // Adiciona adesivo Direito se estiver na borda positiva de X
+      if (ix === 1) {
+        const s = new THREE.Mesh(stickerGeo, new THREE.MeshPhongMaterial({ color: COLORS.R, shininess: 150 }));
+        s.position.x = CUBIE_SIZE / 2;
+        s.rotation.y = Math.PI / 2;
+        cubieGroup.add(s);
+      }
+      // Adiciona adesivo Esquerdo se estiver na borda negativa de X
+      if (ix === -1) {
+        const s = new THREE.Mesh(stickerGeo, new THREE.MeshPhongMaterial({ color: COLORS.L, shininess: 150 }));
+        s.position.x = -CUBIE_SIZE / 2;
+        s.rotation.y = -Math.PI / 2;
+        cubieGroup.add(s);
+      }
+
+      cubeGroup.add(cubieGroup); // Adiciona a peca pronta ao cubo completo
+      return { mesh: cubieGroup, ix, iy, iz }; // Retorna as referencias para o array principal
+    }
+
+    // Funcao que itera pelas coordenadas criando todas as 26 pecas do cubo
+    function initCube() {
+      // Limpa os objetos da cena caso esteja reiniciando o cubo
+      while(cubeGroup.children.length > 0) cubeGroup.remove(cubeGroup.children[0]);
+      cubies = [];
+      
+      // Loops alinhados em 3D: X, Y, Z variam de -1 a 1
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            if (x === 0 && y === 0 && z === 0) continue; // Pula a iteracao no nucleo central, pois ele e vazio
+            cubies.push(createCubie(x, y, z));
+          }
+        }
+      }
+    }
+
+    // Dispara a geracao do modelo assim que o codigo chega aqui
+    initCube();
+
       </script>
 </body>
 </html>
